@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Reading List Exporter</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #fafaf9;
+      --surface:  #ffffff;
+      --border:   #e5e5e3;
+      --border-focus: #3d7a5e;
+      --text:     #1a1a18;
+      --muted:    #8a8a85;
+      --green:    #2d6a4f;
+      --green-lt: #3d7a5e;
+      --green-bg: #eef5f1;
+      --red:      #c0392b;
+    }
+
+    html, body {
+      width: 340px;
+      background: var(--bg);
+      font-family: 'IBM Plex Sans', sans-serif;
+      font-size: 13px;
+      color: var(--text);
+    }
+
+    /* ── Top bar ── */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px 12px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+    }
+    .topbar-left {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+    }
+    .topbar h1 {
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: -0.2px;
+      color: var(--text);
+    }
+    .topbar .version {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+    }
+    .topbar-stats {
+      display: flex;
+      gap: 10px;
+    }
+    .topbar-stat {
+      text-align: right;
+    }
+    .topbar-stat .n {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 13px;
+      font-weight: 400;
+      color: var(--green);
+      line-height: 1;
+    }
+    .topbar-stat .l {
+      font-size: 9px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    /* ── Filters ── */
+    .filters {
+      padding: 12px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+    }
+
+    .filter-row {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    /* Shared control style */
+    select, input[type="text"], input[type="date"] {
+      font-family: 'IBM Plex Sans', sans-serif;
+      font-size: 12px;
+      color: var(--text);
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 5px 8px;
+      outline: none;
+      transition: border-color 0.12s;
+      height: 28px;
+    }
+    select:focus, input:focus { border-color: var(--border-focus); }
+
+    .select-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    .select-wrap select { appearance: none; padding-right: 20px; }
+    .select-wrap::after {
+      content: '↕';
+      position: absolute;
+      right: 7px;
+      font-size: 9px;
+      color: var(--muted);
+      pointer-events: none;
+    }
+    /* for plain chevron on non-sort selects */
+    .select-wrap.chevron::after { content: '⌄'; font-size: 12px; right: 6px; }
+
+    input[type="text"] { flex: 1; }
+
+    /* Status pills */
+    .pill-row {
+      display: flex;
+      gap: 4px;
+    }
+    .pill {
+      padding: 4px 10px;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      font-family: 'IBM Plex Sans', sans-serif;
+      font-size: 11px;
+      font-weight: 400;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.1s;
+      height: 26px;
+      display: flex; align-items: center;
+    }
+    .pill:hover { border-color: var(--green-lt); color: var(--green); }
+    .pill.active {
+      background: var(--green-bg);
+      border-color: var(--green-lt);
+      color: var(--green);
+      font-weight: 500;
+    }
+
+    .filter-label {
+      font-size: 11px;
+      color: var(--muted);
+      white-space: nowrap;
+      min-width: 30px;
+    }
+
+    input[type="date"] {
+      flex: 1;
+      font-size: 11px;
+      color: var(--text);
+    }
+    input[type="date"]::-webkit-calendar-picker-indicator {
+      opacity: 0.4;
+      cursor: pointer;
+    }
+
+    /* ── Preview list ── */
+    .preview {
+      max-height: 148px;
+      overflow-y: auto;
+      background: var(--bg);
+    }
+    .preview::-webkit-scrollbar { width: 3px; }
+    .preview::-webkit-scrollbar-thumb { background: var(--border); }
+
+    .preview-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 16px;
+      border-bottom: 1px solid var(--border);
+      min-width: 0;
+    }
+    .preview-item:last-child { border-bottom: none; }
+
+    .status-dot {
+      flex-shrink: 0;
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--green-lt);
+    }
+    .status-dot.read { background: var(--border); }
+
+    .item-title {
+      flex: 1;
+      font-size: 12px;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-weight: 300;
+    }
+    .item-domain {
+      flex-shrink: 0;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+    }
+
+    .preview-empty {
+      padding: 24px 16px;
+      font-size: 12px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    /* ── Footer bar ── */
+    .footer-bar {
+      border-top: 1px solid var(--border);
+      background: var(--surface);
+      padding: 10px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .count-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .count-text {
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .count-text strong { color: var(--green); font-weight: 500; }
+
+    .action-row {
+      display: flex;
+      gap: 6px;
+    }
+
+    .btn {
+      flex: 1;
+      height: 30px;
+      border-radius: 5px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      font-family: 'IBM Plex Sans', sans-serif;
+      font-size: 12px;
+      font-weight: 400;
+      color: var(--text);
+      cursor: pointer;
+      transition: all 0.12s;
+      display: flex; align-items: center; justify-content: center;
+      gap: 4px;
+    }
+    .btn:hover { border-color: var(--green-lt); color: var(--green); background: var(--green-bg); }
+    .btn:active { transform: scale(0.98); }
+
+    .btn-primary {
+      border-color: var(--green);
+      background: var(--green);
+      color: #fff;
+    }
+    .btn-primary:hover { background: var(--green-lt); border-color: var(--green-lt); color: #fff; }
+
+    .btn .kbd {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 9px;
+      opacity: 0.55;
+    }
+
+    /* ── Status message ── */
+    .status-msg {
+      font-size: 11px;
+      color: var(--muted);
+      text-align: center;
+      min-height: 14px;
+      transition: color 0.15s;
+      font-style: italic;
+    }
+    .status-msg.ok  { color: var(--green); font-style: normal; }
+    .status-msg.err { color: var(--red);   font-style: normal; }
+  </style>
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="topbar-left">
+      <h1>Reading List</h1>
+      <span class="version">v3.0</span>
+    </div>
+    <div class="topbar-stats">
+      <div class="topbar-stat">
+        <div class="n" id="statTotal">—</div>
+        <div class="l">total</div>
+      </div>
+      <div class="topbar-stat">
+        <div class="n" id="statUnread">—</div>
+        <div class="l">unread</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="filters">
+
+    <!-- Status + Sort -->
+    <div class="filter-row" style="justify-content:space-between">
+      <div class="pill-row">
+        <button class="pill active" data-status="all">All</button>
+        <button class="pill" data-status="unread">Unread</button>
+        <button class="pill" data-status="read">Read</button>
+      </div>
+      <div class="select-wrap">
+        <select id="sortSelect">
+          <option value="newest">Newest first</option>
+          <option value="oldest">Oldest first</option>
+          <option value="az">A → Z</option>
+          <option value="za">Z → A</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Site filter -->
+    <div class="filter-row">
+      <span class="filter-label">Site</span>
+      <div class="select-wrap chevron" style="flex:1">
+        <select id="siteFilter" style="width:100%">
+          <option value="all">All sites</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Keyword -->
+    <div class="filter-row">
+      <span class="filter-label">Find</span>
+      <input type="text" id="searchInput" placeholder="Search titles…"/>
+    </div>
+
+    <!-- Date range -->
+    <div class="filter-row">
+      <span class="filter-label">From</span>
+      <input type="date" id="dateFrom"/>
+      <span class="filter-label" style="text-align:center;min-width:16px">to</span>
+      <input type="date" id="dateTo"/>
+    </div>
+
+  </div>
+
+  <div class="preview" id="previewList">
+    <div class="preview-empty">Loading…</div>
+  </div>
+
+  <div class="footer-bar">
+    <div class="count-row">
+      <span class="count-text">Exporting <strong id="filteredCount">0</strong> items</span>
+      <span class="status-msg" id="statusMsg"></span>
+    </div>
+    <div class="action-row">
+      <button class="btn" id="btnCopyUrls" title="Copy one URL per line">Copy URLs</button>
+      <button class="btn" id="btnCopyJson" title="Copy as JSON">Copy JSON</button>
+      <button class="btn btn-primary" id="btnExportJson">JSON ↓</button>
+      <button class="btn btn-primary" id="btnExportHtml">HTML ↓</button>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
