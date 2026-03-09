@@ -1,12 +1,12 @@
 {
   "manifest_version": 3,
-  "name": "Reading List Exporter",
+  "name": "Listport",
   "version": "3.0.0",
-  "description": "Export, filter, and copy your reading list. Sort by date or title, filter by site, status, and date range.",
+  "description": "Export, filter, search through, and copy your reading list in a new way! Sort by date or title, filter by site, status, and date range.",
   "permissions": ["readingList"],
   "action": {
     "default_popup": "popup.html",
-    "default_title": "Reading List Exporter"
+    "default_title": "Listport"
   },
   "icons": {
     "16": "icons/icon16.png",
