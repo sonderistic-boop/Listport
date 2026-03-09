@@ -7,7 +7,7 @@ Chromium extension for exporting large reading lists
 </li>
   <li>Go to chrome://extensions or brave://extensions
 </li>
-  <li>Enable Developer mode (top right)
+  <li>Enable Developer mode 
 </li>
   <li>Click "Load unpacked" and select the folder
 </li>
