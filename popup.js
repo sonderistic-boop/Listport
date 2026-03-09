@@ -1,10 +1,13 @@
-// Reading List Exporter v3.0.0
-
 let allItems = [];
 let filtered = [];
 let activeStatus = 'all';
 
-// ── Helpers ──────────────────────────────────────────────
+
+
+
+
+
+
 
 function getDomain(url) {
   try { return new URL(url).hostname.replace(/^www\./, ''); }
@@ -17,7 +20,7 @@ function normalizeMs(ts) {
 }
 
 function toDateStr(ts) {
-  // Returns "YYYY-MM-DD" for date input comparison
+  // Returns "YYYY-MM-DD" 
   const ms = normalizeMs(ts);
   if (!ms) return null;
   return new Date(ms).toISOString().slice(0, 10);
@@ -52,7 +55,6 @@ async function copyText(text) {
   await navigator.clipboard.writeText(text);
 }
 
-// ── Fetch ─────────────────────────────────────────────────
 
 async function fetchReadingList() {
   const entries = await chrome.readingList.query({});
@@ -66,7 +68,16 @@ async function fetchReadingList() {
   }));
 }
 
-// ── Filter + Sort ─────────────────────────────────────────
+
+
+
+
+
+
+
+
+
+
 
 function applyFilters() {
   const site    = document.getElementById('siteFilter').value;
@@ -98,7 +109,10 @@ function applyFilters() {
   document.getElementById('filteredCount').textContent = filtered.length;
 }
 
-// ── Preview ───────────────────────────────────────────────
+
+
+
+
 
 function renderPreview() {
   const list = document.getElementById('previewList');
@@ -117,7 +131,14 @@ function renderPreview() {
   `).join('');
 }
 
-// ── Export helpers ────────────────────────────────────────
+
+
+
+
+
+
+
+
 
 function buildJsonPayload() {
   return {
@@ -144,7 +165,7 @@ function buildHtml() {
   }).join('\n');
 
   return `<!DOCTYPE NETSCAPE-Bookmark-file-1>
-<!-- Exported by Reading List Exporter v3.0.0 -->
+<!-- Exported by Listport -->
 <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8">
 <TITLE>Bookmarks</TITLE><H1>Bookmarks</H1>
 <DL><p>
@@ -155,7 +176,6 @@ ${rows}
 </DL><p>`;
 }
 
-// ── Init ──────────────────────────────────────────────────
 
 async function init() {
   try {
@@ -173,7 +193,7 @@ async function init() {
   document.getElementById('statTotal').textContent  = allItems.length;
   document.getElementById('statUnread').textContent = unread;
 
-  // Site dropdown
+  // dropdownz
   const siteSelect = document.getElementById('siteFilter');
   domains.forEach(d => {
     const opt = document.createElement('option');
@@ -184,8 +204,23 @@ async function init() {
   // Initial render
   applyFilters();
 
-  // ── Listeners ──
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
   document.querySelectorAll('.pill').forEach(pill => {
     pill.addEventListener('click', () => {
       document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
