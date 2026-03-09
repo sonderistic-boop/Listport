@@ -3,8 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <title>Reading List Exporter</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet">
+
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -24,7 +23,7 @@
     html, body {
       width: 340px;
       background: var(--bg);
-      font-family: 'IBM Plex Sans', sans-serif;
+      font-family: -apple-system, 'Helvetica Neue', Arial, sans-serif;
       font-size: 13px;
       color: var(--text);
     }
@@ -50,7 +49,7 @@
       color: var(--text);
     }
     .topbar .version {
-      font-family: 'IBM Plex Mono', monospace;
+      font-family: Menlo, Consolas, monospace;
       font-size: 10px;
       color: var(--muted);
     }
@@ -62,7 +61,7 @@
       text-align: right;
     }
     .topbar-stat .n {
-      font-family: 'IBM Plex Mono', monospace;
+      font-family: Menlo, Consolas, monospace;
       font-size: 13px;
       font-weight: 400;
       color: var(--green);
@@ -93,7 +92,7 @@
 
     /* Shared control style */
     select, input[type="text"], input[type="date"] {
-      font-family: 'IBM Plex Sans', sans-serif;
+      font-family: -apple-system, 'Helvetica Neue', Arial, sans-serif;
       font-size: 12px;
       color: var(--text);
       background: var(--bg);
@@ -135,7 +134,7 @@
       border-radius: 4px;
       border: 1px solid var(--border);
       background: var(--bg);
-      font-family: 'IBM Plex Sans', sans-serif;
+      font-family: -apple-system, 'Helvetica Neue', Arial, sans-serif;
       font-size: 11px;
       font-weight: 400;
       color: var(--muted);
@@ -170,6 +169,7 @@
     }
 
     /* ── Preview list ── */
+    /* TODO: virtualise this if lists get large */
     .preview {
       max-height: 148px;
       overflow-y: auto;
@@ -182,7 +182,7 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      padding: 7px 16px;
+      padding: 7px 16px 7px 14px;
       border-bottom: 1px solid var(--border);
       min-width: 0;
     }
@@ -207,7 +207,7 @@
     }
     .item-domain {
       flex-shrink: 0;
-      font-family: 'IBM Plex Mono', monospace;
+      font-family: Menlo, Consolas, monospace;
       font-size: 10px;
       color: var(--muted);
     }
@@ -251,7 +251,7 @@
       border-radius: 5px;
       border: 1px solid var(--border);
       background: var(--bg);
-      font-family: 'IBM Plex Sans', sans-serif;
+      font-family: -apple-system, 'Helvetica Neue', Arial, sans-serif;
       font-size: 12px;
       font-weight: 400;
       color: var(--text);
@@ -271,7 +271,7 @@
     .btn-primary:hover { background: var(--green-lt); border-color: var(--green-lt); color: #fff; }
 
     .btn .kbd {
-      font-family: 'IBM Plex Mono', monospace;
+      font-family: Menlo, Consolas, monospace;
       font-size: 9px;
       opacity: 0.55;
     }
@@ -293,7 +293,7 @@
 
   <div class="topbar">
     <div class="topbar-left">
-      <h1>Reading List</h1>
+      <h1>Listport</h1>
       <span class="version">v3.0</span>
     </div>
     <div class="topbar-stats">
@@ -359,14 +359,14 @@
 
   <div class="footer-bar">
     <div class="count-row">
-      <span class="count-text">Exporting <strong id="filteredCount">0</strong> items</span>
+      <span class="count-text"><strong id="filteredCount">0</strong> selected</span>
       <span class="status-msg" id="statusMsg"></span>
     </div>
     <div class="action-row">
-      <button class="btn" id="btnCopyUrls" title="Copy one URL per line">Copy URLs</button>
+      <button class="btn" id="btnCopyUrls" title="Copy one URL per line">URLs</button>
       <button class="btn" id="btnCopyJson" title="Copy as JSON">Copy JSON</button>
-      <button class="btn btn-primary" id="btnExportJson">JSON ↓</button>
-      <button class="btn btn-primary" id="btnExportHtml">HTML ↓</button>
+      <button class="btn btn-primary" id="btnExportJson">↓ JSON</button>
+      <button class="btn btn-primary" id="btnExportHtml">↓ HTML</button>
     </div>
   </div>
 
